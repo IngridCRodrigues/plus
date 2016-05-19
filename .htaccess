@@ -1,0 +1,10 @@
+RewriteEngine on
+#ErrorDocument 404 http://
+#ErrorDocument 403 http://
+#ErrorDocument 500 http://
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME}\.phtml -f
+RewriteRule ^(.*)$ $1.phtml
+RewriteCond %{REQUEST_FILENAME}\.php -f
+RewriteRule ^(.*)$ $1.php
+Options -Indexes
