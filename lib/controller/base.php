@@ -7,10 +7,14 @@
  * - Model: User
  * - Correspondent controller: User_controller
  */
-
     namespace Controller;
 
-    class Base {
+
+    require_once('../helpers/image.php');
+    use \Helper;
+
+
+    class Base extends \Helper\Image {
 
         /**
          * Stores the address to redirect user after action
@@ -82,6 +86,22 @@
          * @return void
          */
         public function store() {
+            $image = is_uploaded_file($_FILES['picture']['tmp_name']);
+            if ($image && !self::validateType($_FILES['picture']['type'])) {
+                header('location: ../views/insert_clients.php');
+                break;
+            }
+            /*Caso haja alguma imagem prepara-a para inserção*/
+            if ($image) {
+                $path = '../uploads/'.lcfirst($this->model).'/';
+                $image = new \Helper\Image($_FILES['picture']);
+                $image->resize(350);
+                $image->save($path);
+                $_REQUEST['picture'] = $path.'/'.$image->name.'.'.$image->type;
+            } else {
+                $_POST['picture'] = 'logo.png';
+            }
+
             if (self::is_valid()) {
                 $obj = new $this->model($_REQUEST);
                 try {
@@ -129,6 +149,7 @@
                     $_SESSION['id'] = $got->id;
                     $_SESSION['name'] = $got->name;
                     $_SESSION['level'] = $got->level;
+                    $_SESSION['picture'] = $got->picture;
                     $_SESSION['on'] = true;
                     $got = null;
                     header('Location: ../views/home');

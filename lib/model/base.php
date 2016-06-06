@@ -33,7 +33,7 @@
          */
         function __construct($attributes) {
             $this->id = isset($attributes['id']) ? $attributes['id'] : null;
-            isset($attributes['password']) ? static::encryptPass($attributes['password']) : true;
+            (!empty($attributes['password'])) ? static::encryptPass($attributes['password']) : true;
             foreach ($attributes as $key => $value) {
                 if(in_array($key, $this->fillable)) {
                     $this->$key = $value;
@@ -48,7 +48,7 @@
          * @return object \PDO
          */
         protected static function connect() {
-            $pdo = new \PDO('mysql:host=localhost;dbname=default', 'root', '');
+            $pdo = new \PDO('mysql:host=localhost;dbname=produtora', 'root', '');
             $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
             return $pdo;
         }
@@ -95,9 +95,10 @@
          * @param  string $order [Sets the ORDER BY param and sorting to SQL query.]
          * @return object
          */
-        public static function all($order = 'id ASC') {
+        public static function all($order = 'id ASC', $limit = null) {
+            if (!is_null($limit)) $limit = ' LIMIT '.$limit;
             $connect = self::connect();
-            $stm = $connect->query('SELECT * FROM `'.self::entity().'` ORDER BY '.$order);
+            $stm = $connect->query('SELECT * FROM `'.self::entity().'` ORDER BY '.$order.$limit);
             $stm->execute();
             return $stm->fetchAll(PDO::FETCH_OBJ);
         }
@@ -110,7 +111,7 @@
          */
         public static function one($id = null) {
             $connect = self::connect();
-            isset($_GET['id']) ? $id = $_GET['id'] : true;
+            if (!$id) $id = $_GET['id'];
             $stm = $connect->prepare('SELECT * FROM `'.self::entity().'` WHERE id = '.$id.' LIMIT 1');
             $stm->bindParam(":id", $id, PDO::PARAM_INT);
             $stm->execute();
