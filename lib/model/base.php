@@ -11,6 +11,7 @@
     use \PDO;
 
     require_once('../helpers/session.php');
+    require_once('../helpers/connection.php');
 
     abstract class Base {
 
@@ -62,9 +63,7 @@
          * @return object \PDO
          */
         protected static function connect() {
-            $pdo = new \PDO('mysql:host=localhost;dbname=produtora', 'root', '');
-            $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-            return $pdo;
+            return Connection::start();
         }
 
         /**

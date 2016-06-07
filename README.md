@@ -25,4 +25,17 @@ IMPORTANTE: Para utilizar a `\Model\Base`, suas funções e propriedades correta
 - Correspondent database table: users
 ```
 
+### Configurações
+
+Para configurar as credenciais para acesso ao mysql crie um arquivo `.env` e copie o conteúdo do arquivo `.env.sample` alterando para os valores corretos do ambiente no qual está configurando, o arquivo tem a seguinte estrutura:
+
+```
+APP_URL=http://localhost
+
+DB_CONNECTION=<bd_type>
+DB_HOST=<bd_server>
+DB_NAME=<db_name>
+DB_USER=<db_user (duh!)>
+DB_PASSWORD=<what_do_u_thnk_ll_be_placed_here?>
+```
 ... we'll continue
