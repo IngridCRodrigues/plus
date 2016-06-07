@@ -28,6 +28,13 @@
         protected $fillable = [];
 
         /**
+         * Field list wich entities have an n2n relatioship.
+         *
+         * @var array
+         */
+        protected $relatedEntities = [];
+
+        /**
          * Generic dynamic construct for models
          * @param array $attributes [field list for search on database table/view]
          */
@@ -37,6 +44,13 @@
             foreach ($attributes as $key => $value) {
                 if(in_array($key, $this->fillable)) {
                     $this->$key = $value;
+                }
+            }
+            if($relatedEntities) {
+                foreach ($attributes as $key => $value) {
+                    if(in_array($key, $this->relatedEntities)) {
+                        $this->$key = $value;
+                    }
                 }
             }
             unset($this->fillable);
@@ -124,10 +138,46 @@
          * @return boolean [TRUE on success or FALSE on failure.]
          */
         public function insert() {
+            protected $response = [];
             $connect = self::connect();
-            $attr = (array)$this;
-            $stm = $connect->prepare('INSERT INTO `'.self::entity(false).'`('.implode(',  ', array_keys($attr)).', createdAt, updatedAt) VALUES (:'.implode(', :', array_keys($attr)).', NOW(), NOW())');
-            return $stm->execute($attr);
+            $connect->beginTransaction();
+
+            try {
+
+                $attr = (array)$this;
+                $stm = $connect->prepare('INSERT INTO `'.self::entity(false).'`('.implode(',  ', array_keys($attr)).', createdAt, updatedAt) VALUES (:'.implode(', :', array_keys($attr)).', NOW(), NOW())');
+                $response = $stm->execute($attr);
+
+                if ($this->relatedEntities){
+                    $lastId = (int)$connect->lastInsertedId();
+                    array_push($response, self->insertReletedsEntity($lastId, $connect));
+                }
+
+                $connect->commit();
+                return $response;
+            } catch (Exception $e) {
+                $connect->rollback();
+                return false;
+            }
+        }
+
+        /**
+         * Inserts on line in every table relation
+         * fazê no padrao masterRslave
+         *
+         * @return boolean [TRUE on success or FALSE on failure.]
+         */
+        public function insertReletedsEntity($lastId, PDO $connect) {
+            private $response = [];
+
+            foreach ($relatedEntities as $entity) {
+                if(!empty($this->$entity)) {
+                    $stm = $connect->prepare('INSERT INTO `'.self::entity(false).'R'.$entity.'`('.self::entity(false).', '.$entity.', createdAt, updatedAt) VALUES (:'.self::entity(false).', :'.$entity.', NOW(), NOW())');
+                }
+                $response[$entity] = $stm->execute();
+            }
+
+            return $response;
         }
 
         /**

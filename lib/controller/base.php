@@ -19,7 +19,7 @@
         /**
          * Stores the address to redirect user after action
          *
-         * It'll be overloaded by each controller
+         * It'll be overwritten by each controller
          *
          * @var string
          */
@@ -28,7 +28,7 @@
         /**
          * Stores valid actions to use on system
          *
-         * It can be overloaded by each controller
+         * It can be overwritten by each controller
          *
          */
         public $actions = ['delete', 'store'];
@@ -36,7 +36,7 @@
         /**
          * Stores required fills to validate actions
          *
-         * It can be overloaded by each controller
+         * It can be overwritten by each controller
          *
          */
         public $fillneeded = [];
@@ -69,7 +69,7 @@
         /**
          * Verifies if passed informations are sufficient to validate the query
          *
-         * It'll be overloaded by each controller
+         * It'll be overwritten by each controller
          *
          * @return boolean
          */
